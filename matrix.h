@@ -1,4 +1,4 @@
-// Copyright (c) 2017 by NicolÃ² Veronese.
+// Copyright (c) 2017 by Nicolò Veronese.
 // All Rights Reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,7 +19,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <malloc.h>
+#include <assert.h>
 
 #ifndef _MATRIX_H_
 #define _MATRIX_H_
@@ -27,45 +31,44 @@
 typedef struct MatrixStruct_t *Matrix;
 
 /*
- * Init the matrix on dynamic mem, using specified sizes.
- * NOTE: memory is not cleared, so random date is still present.
- */
-Matrix Matrix_init(u_int width, u_int height);
+* Init the matrix on dynamic mem, using specified sizes.
+*/
+Matrix Matrix_init(int width, int height);
 
 /*
- * Destroy the matrix, free the memory.
- */
-void Matrix_destroy(Matrix data);
+* Destroy the matrix, free the memory.
+*/
+void Matrix_destroy(Matrix mat);
 
 /*
- * Clear the matrix.
- */
-void Matrix_clear(Matrix data);
+* Clear the matrix.
+*/
+void Matrix_clear(Matrix mat);
 
 /*
- * Return matrix width.
- */
-u_int Matrix_get_width(Matrix data);
+* Return matrix width.
+*/
+int Matrix_get_width(Matrix mat);
 
 /*
- * Return matrix height.
- */
-u_int Matrix_get_height(Matrix data);
+* Return matrix height.
+*/
+int Matrix_get_height(Matrix mat);
 
 /*
- * Return element on [x, y].
- */
-void * Matrix_get(Matrix data, u_int x, u_int y);
+* Return element on [x, y].
+*/
+int Matrix_get(Matrix mat, int x, int y, void **data);
 
 /*
- * Insert element on [x, y], replace current value.
- */
-bool Matrix_insert(Matrix data, u_int x, u_int y, void *val);
+* Insert element on [x, y], replace current value.
+*/
+int Matrix_set(Matrix mat, int x, int y, void *val);
 
 /*
- * Remove element on [x, y], set cell as NULL.
- * return value at [x, y]
- */
-void* Matrix_remove(Matrix data, u_int x, u_int y);
+* Remove element on [x, y], set cell as NULL.
+* return value at [x, y]
+*/
+int Matrix_remove(Matrix mat, int x, int y, void **data);
 
 #endif

@@ -1,105 +1,89 @@
-
-#ifndef _MATRIX_H_
-#include matrix.h
-#endif
+#include "matrix.h"
 
 struct MatrixStruct_t
 {
-  u_int                 width;
-  u_int                 height;
-  void                  *data;
+	int                 width;
+	int                 height;
+	void				**data;
 };
 
-/*
- * Init the matrix on dynamic mem, using specified sizes.
- * NOTE: memory is not cleared, so random date is still present.
- */
-Matrix Matrix_init(u_int width, u_int height){
-  int size = x * y;
-  Matrix matrix;
+Matrix Matrix_init(int width, int height) {
+	int size = width * height;
+	Matrix matrix;
 
-  if ((matrix = (Matrix)malloc(sizeof(struct MatrixStruct_t)))==NULL)
-    return NULL;
+	if ((matrix = (Matrix)malloc(sizeof(struct MatrixStruct_t))) == NULL)
+		return NULL;
 
-  matrix->width = width;
-  matrix->height = height;
-  matrix->data = malloc(size);
+	matrix->width = width;
+	matrix->height = height;
+	matrix->data = malloc(size);
 
-  return matrix;
+	Matrix_clear(matrix);
+
+	return matrix;
+}
+
+void Matrix_destroy(Matrix mat) {
+	// TODO - Add implementation here :)
+	int i;
+	for (i = 0; i < (mat->height * mat->width); i++){
+		free(mat->data[i]);
+	}
+
+	free(mat);
+}
+
+void Matrix_clear(Matrix mat) {
+	int size = mat->height * mat->width;
+	int i;
+	for (i = 0; i < size; i++)
+		mat->data[i] = NULL;
+}
+
+int Matrix_get_width(Matrix mat) {
+	return mat->width;
+}
+
+int Matrix_get_height(Matrix mat) {
+	return mat->height;
+}
+
+int Matrix_get(Matrix mat, int x, int y, void **data) {
+	int i = (x * Matrix_get_height(mat)) + y;
+
+	if (Matrix_out_of_range(mat, x, y)) {
+		return -1;
+	}
+
+	*data = mat->data[i];
+	return 0;
+}
+
+int Matrix_set(Matrix mat, int x, int y, void *val) {
+	int i = (x * Matrix_get_height(mat)) + y;
+
+	if (Matrix_out_of_range(mat, x, y)){
+		return -1;
+	}
+
+	mat->data[i] = val;
+	return 0;
+}
+
+int Matrix_remove(Matrix mat, int x, int y, void **data) {
+	int ret = Matrix_get(mat, x, y, data);
+
+	if (ret >= 0) {
+		Matrix_insert(mat, x, y, NULL);
+	}
+
+	return ret;
 }
 
 /*
- * Destroy the matrix, free the memory.
- */
-void Matrix_destroy(Matrix data){
-  // TODO - Add implementation here :)
+* Support functions
+*/
+
+int Matrix_out_of_range(Matrix mat, int x, int y) {
+	return x < 0 || x > mat->width || y < 0 || y > mat->height;
 }
-
-/*
- * Clear the matrix.
- * NOTE: Elements are not freed from memory
- */
-void Matrix_clear(Matrix data){
-  u_int size = data->height * data->width;
-  int i;
-  for(i = 0; i < size; i++)
-    data->data[i] = NULL;
-}
-
-/*
- * Return matrix width.
- */
-u_int Matrix_get_width(Matrix data){
-  return data->width;
-}
-
-/*
- * Return matrix height.
- */
-u_int Matrix_get_height(Matrix data){
-  return data->height;
-}
-
-/*
- * Return element on [x, y].
- */
-void * Matrix_get(Matrix data, u_int x, u_int y){
-  u_int i = (x * get_height(data)) + y;
-
-  if(Matrix_out_of_range(data, x, y))
-    return NULL;
-  return data->data[i];
-}
-
-/*
- * Insert element on [x, y], replace current value.
- */
- bool Matrix_insert(Matrix data, u_int x, u_int y, void *val){
-  u_int i = (x * get_height(data)) + y;
-
-  if(Matrix_out_of_range(data, x, y))
-    return false;
-  }
-
-  data->data[i] = val;
-  return true;
-}
-
-/*
- * Remove element on [x, y], set cell as NULL.
- */
-void* Matrix_remove(Matrix data, u_int x, u_int y){
-  void *element = Matrix_get(data, x, y);
-  Matrix_insert(data,x, y, NULL);
-
-  return element;
-}
-
-/*
- * Support functions
- */
-
- bool Matrix_out_of_range(Matrix data, u_int x, u_int y){
-
-   return x > data->width || y > data->height;
- }

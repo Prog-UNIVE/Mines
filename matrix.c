@@ -7,6 +7,8 @@ struct MatrixStruct_t
 	void				**data;
 };
 
+int Matrix_remove(Matrix mat, int x, int y, void **data);
+
 Matrix Matrix_init(int width, int height) {
 	int size = width * height;
 	Matrix matrix;
@@ -16,7 +18,8 @@ Matrix Matrix_init(int width, int height) {
 
 	matrix->width = width;
 	matrix->height = height;
-	matrix->data = malloc(size);
+	if ((matrix->data = malloc(sizeof(void*) * size)) == NULL)
+		return NULL;
 
 	Matrix_clear(matrix);
 
@@ -24,12 +27,13 @@ Matrix Matrix_init(int width, int height) {
 }
 
 void Matrix_destroy(Matrix mat) {
-	// TODO - Add implementation here :)
 	int i;
 	for (i = 0; i < (mat->height * mat->width); i++){
-		free(mat->data[i]);
+		if(mat->data[i] != NULL)
+			free(mat->data[i]);
 	}
 
+	free(mat->data);
 	free(mat);
 }
 
@@ -59,14 +63,14 @@ int Matrix_get(Matrix mat, int x, int y, void **data) {
 	return 0;
 }
 
-int Matrix_set(Matrix mat, int x, int y, void *val) {
+int Matrix_set(Matrix mat, int x, int y, void *data) {
 	int i = (x * Matrix_get_height(mat)) + y;
 
 	if (Matrix_out_of_range(mat, x, y)){
 		return -1;
 	}
 
-	mat->data[i] = val;
+	mat->data[i] = data;
 	return 0;
 }
 
@@ -74,7 +78,7 @@ int Matrix_remove(Matrix mat, int x, int y, void **data) {
 	int ret = Matrix_get(mat, x, y, data);
 
 	if (ret >= 0) {
-		Matrix_insert(mat, x, y, NULL);
+		Matrix_set(mat, x, y, NULL);
 	}
 
 	return ret;

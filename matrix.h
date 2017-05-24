@@ -63,7 +63,7 @@ int Matrix_get(Matrix mat, int x, int y, void **data);
 /*
 * Insert element on [x, y], replace current value.
 */
-int Matrix_set(Matrix mat, int x, int y, void *val);
+int Matrix_set(Matrix mat, int x, int y, void *data);
 
 /*
 * Remove element on [x, y], set cell as NULL.

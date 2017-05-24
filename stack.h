@@ -24,7 +24,7 @@ typedef Slist Stack;
 * in this stack function interface - i.e. a sort of "handle" to the stack.
 * @see STACKdestroy()
 **/
-Stack STACKinit(void(*destroy)(void *data));
+Stack STACK_init(void(*destroy)(void *data));
 
 /**
 * Destroy the stack.
@@ -40,7 +40,7 @@ Stack STACKinit(void(*destroy)(void *data));
 * @return Nothing.
 * @see STACKinit()
 **/
-void STACKdestroy(Stack stk);
+void STACK_destroy(Stack stk);
 
 /**
 * Insert(=push) a new element - at the top of the stack.
@@ -55,7 +55,7 @@ void STACKdestroy(Stack stk);
 *
 * @return Value 0 - if everything went OK - or value -1 otherwise.
 **/
-int STACKpush(Stack stk, const void *data);
+int STACK_push(Stack stk, const void *data);
 
 /**
 * Remove(=pop) the top element.
@@ -78,7 +78,7 @@ int STACKpush(Stack stk, const void *data);
 * @return Value 0 - if the call was OK - or
 * value -1 otherwise.
 **/
-int STACKpop(Stack stk, void **data);
+int STACK_pop(Stack stk, void **data);
 
 /**
 * Peek at the top of the stack.
@@ -89,7 +89,7 @@ int STACKpop(Stack stk, void **data);
 * to data of the top element, otherwise.
 *
 **/
-void *STACKpeek(Stack stk);
+void *STACK_peek(Stack stk);
 
 /**
 * Determine if the stack is empty - or not.
@@ -98,7 +98,7 @@ void *STACKpeek(Stack stk);
 * @return Value 1 - if the stack is indeed empty -
 * or 0 otherwise.
 **/
-int STACKisempty(Stack stk);
+int STACK_is_empty(Stack stk);
 
 /**
 * Get the stack size.
@@ -107,6 +107,6 @@ int STACKisempty(Stack stk);
 *
 * @return The size, that is, the number of elements in the stack.
 **/
-int STACKsize(Stack stk);
+int STACK_size(Stack stk);
 
 #endif /* _STACK_H_ */

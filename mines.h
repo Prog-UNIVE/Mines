@@ -32,6 +32,11 @@
 #define CODE_OK 0
 #endif
 
+#define MARK_HIDDEN 0
+#define MARK_SHOW 1
+#define MARK_FLAG 2
+
+
 typedef struct MineCell_t *MineNode;
 typedef struct MineStruct_t *Mine;
 
@@ -67,7 +72,7 @@ int Mine_get_bomb_count(Mine game);
 
 int Mine_get(Mine game, int x, int y, MineNode *data);
 
-int Mine_pick(Mine game, int x, int y, int marked);
+int Mine_pick(Mine game, int x, int y, int marker);
 
 int Mine_add_bomb(Mine game, int x, int y);
 

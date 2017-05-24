@@ -28,13 +28,17 @@
 #ifndef _MINE_H_
 #define _MINE_H_
 
+#ifndef CODE_OK
+#define CODE_OK 0
+#endif
+
 typedef struct MineCell_t *MineNode;
 typedef struct MineStruct_t *Mine;
 
 /*
 * Init the matrix on dynamic mem, using specified sizes.
 */
-Mine Mine_init(int size);
+Mine Mine_init(int width, int height, int bombs);
 
 /**
 * Destroy the matrix, free the memory.
@@ -47,18 +51,21 @@ void Mine_destroy(Mine game);
 void Mine_clear(Mine game);
 
 /**
-* Process the current matriz, calculate cell danger
+* Process the current matrix, calculate cell danger
+* if generate is true the field is generated
 **/
-void Mine_process(Mine game);
+void Mine_process(Mine game, int generate);
 
 /*
-* Return matrix size.
+* Return matrix width.
 */
-int Mine_get_size(Mine game);
+int Mine_get_width(Mine game);
+
+int Mine_get_height(Mine game);
 
 int Mine_get_bomb_count(Mine game);
 
-int Mine_get(Mine game, int x, int y, MineNode * data);
+int Mine_get(Mine game, int x, int y, MineNode *data);
 
 int Mine_pick(Mine game, int x, int y, int marked);
 

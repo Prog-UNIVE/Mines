@@ -13,10 +13,6 @@ typedef Slist Stack;
 *
 * Initiate the stack.
 *
-* @param[in] destroy - A reference to a user-made function, reponsible
-* for freeing element data, when the stack is deleted. If @a destroy is
-* NULL - then element data will be left untouched when the list is
-* destroyed.
 * @return A reference - to a new, empty stack - if dynamic memory
 * allocation for the ADT was successful - or NULL otherwise. Take really
 * good care of this return value, since it will be needed as a parameter in
@@ -24,7 +20,7 @@ typedef Slist Stack;
 * in this stack function interface - i.e. a sort of "handle" to the stack.
 * @see STACKdestroy()
 **/
-Stack STACK_init(void(*destroy)(void *data));
+Stack STACK_init();
 
 /**
 * Destroy the stack.

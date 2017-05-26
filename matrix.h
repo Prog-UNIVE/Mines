@@ -1,4 +1,4 @@
-// Copyright (c) 2017 by Nicol� Veronese.
+// Copyright (c) 2017 by Nicolò Veronese.
 // All Rights Reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy

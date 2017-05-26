@@ -1,4 +1,4 @@
-// Copyright (c) 2017 by Nicolò Veronese.
+// Copyright (c) 2017 by Nicolï¿½ Veronese.
 // All Rights Reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,6 +30,22 @@
 
 #ifndef CODE_OK
 #define CODE_OK 0
+#endif
+
+#ifndef CODE_ERROR
+#define CODE_ERROR 1
+#endif
+
+#ifndef CODE_INVALID
+#define CODE_INVALID 2
+#endif
+
+#ifndef CODE_WIN
+#define CODE_WIN 3
+#endif
+
+#ifndef CODE_LOSE
+#define CODE_LOSE 4
 #endif
 
 #define MARK_HIDDEN 0

@@ -18,6 +18,7 @@ struct MineStruct_t
 	int                 height;
 	int                 bombs;
 	int                 flags;
+	int                 shown;
 	Matrix				matrix;
 	Queue				fill_queue;
 	Stack				snapshot_stack;
@@ -27,17 +28,16 @@ int Mine_flood_fill(Mine game,	MineNode *node);
 int random_int(int min, int max);
 
 Mine Mine_init(int width, int height, int bombs) {
-	int *pi;
-
 	Mine game;
 
 	if ((game = (Mine)malloc(sizeof(struct MineStruct_t))) == NULL)
-		return NULL;	
+		return NULL;
 
 	game->width = width;
 	game->height = height;
 	game->bombs = bombs;
 	game->flags = 0;
+	game->shown = 0;
 	game->matrix = Matrix_init(width, height);
 	game->fill_queue = QUEUE_init();
 	game->snapshot_stack = STACK_init();
@@ -66,9 +66,10 @@ void Mine_clear(Mine game) {
 	Matrix *ptr;
 
 	game->flags = 0;
+	game->shown = 0;
 
 	Matrix_clear(game->matrix);
-	QUEUE_destroy(game->matrix);
+	QUEUE_destroy(game->snapshot_stack);
 	game->fill_queue = QUEUE_init();
 
 	while (STACK_size(game->snapshot_stack) > 0) {
@@ -98,7 +99,7 @@ void Mine_process(Mine game, int generate) {
 
 			if (node == NULL && (node = (MineNode *)malloc(sizeof(struct MineCell_t))) == NULL) {
 				printf("Error on malloc cells\n");
-				return 1;
+				return;
 			}
 
 			// TODO - Calculate weight
@@ -127,30 +128,43 @@ int Mine_get_bomb_count(Mine game) {
 }
 
 int Mine_get(Mine game, int x, int y, MineNode *data) {
-	return Matrix_get(game->matrix, x, y, data);
+	return Matrix_get(game->matrix, x, y, (void **) &data);
 }
 
 int Mine_pick(Mine game, int x, int y, int marker) {
 	MineNode *node;
 
 	if (Matrix_get(game->matrix, x, y, (void **)&node) != CODE_OK) {
-		return -1;
+		return CODE_ERROR;
 	}
 
-	(*node)->shown = marker;
+	Mine_snapshot(game);
 
 	if (marker == MARK_FLAG) {
-		game->flags++;
+		if ((*node)->shown == MARK_FLAG) {
+			(*node)->shown = MARK_HIDDEN;
+			game->flags--;
+		}
+		else if (game->flags < game->bombs) {
+			(*node)->shown = MARK_FLAG;
+			game->flags++;
+		}
+		else {
+			return CODE_INVALID;
+		}
 	}
 	else if (marker == MARK_SHOW) {
 		if ((*node)->bomb) {
-			return 1;
+			return CODE_LOSE;
 		}
-
 		Mine_flood_fill(game, node);
+
+		if (game->shown == (game->width * game->height) - game->bombs) {
+			return CODE_WIN;
+		}
 	}
 
-	return 0;
+	return CODE_OK;
 }
 
 int Mine_add_bomb(Mine game, int x, int y) {
@@ -159,8 +173,7 @@ int Mine_add_bomb(Mine game, int x, int y) {
 	Matrix_get(game->matrix, x, y, (void **)&node);
 
 	if (node == NULL && (node = (MineNode *)malloc(sizeof(struct MineCell_t))) == NULL) {
-		printf("Error on malloc cells\n");
-		return 1;
+		return CODE_ERROR;
 	}
 
 	if (!(*node)->bomb) {
@@ -168,57 +181,63 @@ int Mine_add_bomb(Mine game, int x, int y) {
 		return Matrix_set(game->matrix, x, y, node);
 	}
 
-	return 1;
+	return CODE_INVALID;
 }
 
 int Mine_snapshot(Mine game) {
 	// TODO - Do memory copy of this
-	STACK_push(game->snapshot_stack, &game->matrix);
+	return STACK_push(game->snapshot_stack, &game->matrix);
 }
 
 int Mine_rollback(Mine game) {
 	Matrix *ptr;
-	STACK_pop(game->snapshot_stack, (void **)&ptr);
+	if (STACK_pop(game->snapshot_stack, (void **)&ptr) == CODE_OK) {
+		game->matrix = *ptr;
+		return CODE_OK;
+	}
 
-	game->matrix = *ptr;
+	return CODE_ERROR;
 }
 
 int Mine_flood_fill(Mine game, MineNode *first_node) {
 	int x, y;
 	MineNode *node;
 
-	QUEUE_enqueue(game->fill_queue, first_node);
+	if (QUEUE_enqueue(game->fill_queue, first_node) == CODE_OK) {
+		while (QUEUE_size(game->fill_queue) > 0) {
+			if (QUEUE_dequeue(game->fill_queue, (void **)&node) != CODE_OK) {
+				return CODE_ERROR;
+			}
 
-	while (QUEUE_size(game->fill_queue) > 0) {
-		if (QUEUE_dequeue(game->fill_queue, (void **)&node) != CODE_OK) {
-			return -1;
-		}
-
-		if ((*node)->shown == MARK_HIDDEN){
 			(*node)->shown = MARK_SHOW;
+			game->shown++;
 
-			x = (*node)->x;
-			y = (*node)->y;
+			if ((*node)->weight == 0) {
+				x = (*node)->x;
+				y = (*node)->y;
 
-			if (Matrix_get(game->matrix, x, y - 1, (void **)&node) == CODE_OK) {
-				QUEUE_enqueue(game->fill_queue, node);
-			}
+				if (Matrix_get(game->matrix, x, y - 1, (void **)&node) == CODE_OK) {
+					QUEUE_enqueue(game->fill_queue, node);
+				}
 
-			if (Matrix_get(game->matrix, x, y + 1, (void **)&node) == CODE_OK) {
-				QUEUE_enqueue(game->fill_queue, node);
-			}
+				if (Matrix_get(game->matrix, x, y + 1, (void **)&node) == CODE_OK) {
+					QUEUE_enqueue(game->fill_queue, node);
+				}
 
-			if (Matrix_get(game->matrix, x - 1, y, (void **)&node) == CODE_OK) {
-				QUEUE_enqueue(game->fill_queue, node);
-			}
+				if (Matrix_get(game->matrix, x - 1, y, (void **)&node) == CODE_OK) {
+					QUEUE_enqueue(game->fill_queue, node);
+				}
 
-			if (Matrix_get(game->matrix, x + 1, y, (void **)&node) == CODE_OK) {
-				QUEUE_enqueue(game->fill_queue, node);
+				if (Matrix_get(game->matrix, x + 1, y, (void **)&node) == CODE_OK) {
+					QUEUE_enqueue(game->fill_queue, node);
+				}
 			}
 		}
+
+		return CODE_OK;
 	}
 
-	return 0;
+	return CODE_ERROR;
 }
 
 int random_int(int min, int max)

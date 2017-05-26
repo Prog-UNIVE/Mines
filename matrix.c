@@ -7,7 +7,7 @@ struct MatrixStruct_t
 	void				**data;
 };
 
-int Matrix_remove(Matrix mat, int x, int y, void **data);
+int Matrix_out_of_range(Matrix mat, int x, int y);
 
 Matrix Matrix_init(int width, int height) {
 	int size = width * height;

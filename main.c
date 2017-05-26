@@ -1,97 +1,123 @@
 #include "mines.h"
 #include "matrix.h"
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
 
-
-/*
-int load_scheamtic(char *f_name, Mine * game) {
+int load_scheamtic(char *f_name, Mine *game) {
+	char buffer[256];
 	int x, y, counter;
-
 	FILE *file;
-	file = fopen(f_name, "r");
 
-	if (file) {
+	if (f_name == NULL) {
+		printf("Enter schematic file name:\n");
+		printf(">");
+		fgets(buffer, sizeof(buffer), stdin);
+		strtok(buffer, "\n");
+
+		if(strcmp(buffer, "\n") == 0){
+			return 1;
+		}
+	}
+	else {
+		strcpy(buffer, f_name);
+	}
+
+	printf("Opening file: %s.\n", buffer);
+	if ((file = fopen(buffer, "r"))) {
+		printf("File opened: %s\n", buffer);
 		counter = 0;
 
 		while (!feof(file))
 		{
 			if (fscanf(file, "%d,%d", &x, &y))
 			{
-				printf("Line %d, x: %d, y: %d", counter, x, y);
+				printf("Line %d, x: %d, y: %d\n", counter, x, y);
 			}
-
 			counter++;
 		}
 
 		fclose(file);
-
 		return 0;
 	}
 
-	return -1;
-}*/
+	printf("Can't open file: %s.\n", buffer);
+	return 1;
+}
 
-int print_matrix(Matrix matrix) {
-	int i, j, x, y, *pi;
+int ask_user_menu() {
+	char c;
+	int i;
+	printf("Scegli un opzione:\n");
+	printf("\t1) Genera lo schema\n");
+	printf("\t2) Carica uno schema\n");
+	printf("\t3) Esci\n");
 
-	x = Matrix_get_width(matrix);
-	y = Matrix_get_height(matrix);
+	do {
+		printf(">");
+		scanf("%d", &i);
+		while ((c = getchar()) != '\n' && c != EOF) {}
+	} while (i < 1 || i > 3);
 
-	for (i = 0; i < x; i++) {
-		for (j = 0; j < y; j++) {
-			if (Matrix_get(matrix, i, j, (void **)&pi) >= 0) {
-				if (pi != NULL) {
-					printf("%d ", *pi);
-				}
-				else {
-					printf("NULL ");
-				}
-			}
-		}
-		printf("\n");
-	}
-
-	return 0;
+	return i - 1;
 }
 
 int main(int argc, char *argv[]) {
-	int x, y, z, i, j;
-	int *pi;
-	Matrix matrix;
+	int code, i, j, k;
+	Mine game;
 
 	printf("Running....\n");
 
-	x = 5;
-	y = 7;
-	z = 0;	
-
-	if ((matrix = Matrix_init(x, y)) != NULL) {
-		printf("Created the matrix....\n");
-
-		print_matrix(matrix);
-
-		z = 0;
-		for (i = 0; i < x; i++) {
-			for (j = 0; j < y; j++) {
-
-				printf("Insert at %d, %d -> %d\n", i, j, z);
-
-				if ((pi = (int *)malloc(sizeof(int))) == NULL) {
-					printf("Error on heap\n");
-					return 1;
-				}
-
-				*pi = z;
-				Matrix_set(matrix, i, j, pi);
-				z++;
-			}
-		}
-
-		print_matrix(matrix);
-
-		Matrix_destroy(matrix);
+	if(argc > 1){
+		i = argc - 1;
+	}else{
+		i = ask_user_menu();
 	}
 
-	printf("press any key to terminate\n");
+	switch (i) {
+		case 0:
+		printf("Generate schematic\n");
+		j = k = 8;
+		game = Mine_init(j, k, floor((j*j) / 5));
+		break;
+		case 1:
+		printf("Load schematic\n");
+		code = load_scheamtic(argv[1], &game);
+		break;
+		default:
+		return EXIT_SUCCESS;
+		break;
+	}
+
+	if (code) {
+		printf("Error found :(\n");
+	}
+
+	printf("Press ENTER to terminate\n");
 	getchar();
-	return 0;
+	return EXIT_SUCCESS;
 }
+
+/*int print_matrix(Matrix matrix) {
+int i, j, x, y;
+MineNode *pi;
+
+x = Matrix_get_width(matrix);
+y = Matrix_get_height(matrix);
+
+for (i = 0; i < x; i++) {
+for (j = 0; j < y; j++) {
+if (Matrix_get(matrix, i, j, (void **)&pi) >= 0) {
+if (pi != NULL) {
+//printf("%d ", *pi);
+}
+else {
+printf("NULL ");
+}
+}
+}
+printf("\n");
+}
+
+return 0;
+}*/

@@ -18,7 +18,7 @@ typedef Slist Stack;
 * good care of this return value, since it will be needed as a parameter in
 * subsequent calls - to the majority of other stack handling functions
 * in this stack function interface - i.e. a sort of "handle" to the stack.
-* @see STACKdestroy()
+* @see STACK_destroy()
 **/
 Stack STACK_init();
 
@@ -34,7 +34,7 @@ Stack STACK_init();
 *
 * @param[in] stk - a reference to current stack.
 * @return Nothing.
-* @see STACKinit()
+* @see STACK_init()
 **/
 void STACK_destroy(Stack stk);
 

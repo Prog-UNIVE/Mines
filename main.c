@@ -23,7 +23,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
 #include <math.h>
+#include <time.h>
 #include <string.h>
 
 #include "mines.h"
@@ -32,7 +34,7 @@
 void read_stdin_int(int *val, char *msg, int neg)
 {
 	char c;
-	int i;
+	int i = INT_MIN;
 
 	if (msg != NULL)
 		printf("%s", msg);
@@ -42,7 +44,7 @@ void read_stdin_int(int *val, char *msg, int neg)
 		printf(">");
 		scanf("%d", &i);
 		while ((c = getchar()) != '\n' && c != EOF) {}
-	} while (!neg && i < 0);
+	} while (i == INT_MIN && !neg && i < 0);
 
 	*val = i;
 }
@@ -59,10 +61,10 @@ int print_matrix(Mine game)
 	for (i = 0; i < height; i++)
 	{
 		for (j = 0; j < width; j++)
-		{			
+		{
 			if (Mine_get(game, j, i, &node) == CODE_OK)
 			{
-				c = ' ';				
+				c = ' ';
 				if (node != NULL && (shown = Mine_is_node_shown(node)) != MARK_HIDDEN)
 				{
 					if (shown == MARK_FLAG)
@@ -79,7 +81,7 @@ int print_matrix(Mine game)
 					}
 				}
 				printf("[%c]", c);
-			}			
+			}
 		}
 		printf("\n");
 	}
@@ -209,7 +211,8 @@ int play_game(Mine game)
 {
 	int code, i, j, k, mode, malus, r_count;
 
-	read_stdin_int(&malus, "Enter malus value, (-1) to disable malus, (0) to disable rollback:\n", 1);
+	printf("Inserisci il numero di \"indietro\".\n");
+	read_stdin_int(&malus, "(-1) per disattivare il malus, (0) per disattivare l'indietro:\n", 1);
 	r_count = 0;
 
 	do
@@ -353,6 +356,8 @@ int main(int argc, char *argv[])
 {
 	int code, i, j, k, l;
 	Mine game = NULL;
+
+	srand(time(NULL));
 
 	do
 	{

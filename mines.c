@@ -100,7 +100,7 @@ void Mine_clear(Mine game)
 
 	game->flags = 0;
 	game->shown = 0;
-	
+
 	QUEUE_destroy(game->fill_queue);
 	game->fill_queue = QUEUE_init();
 
@@ -108,7 +108,7 @@ void Mine_clear(Mine game)
 	{
 		STACK_pop(game->snapshot_stack, (void **)&matrix);
 		Matrix_destroy(matrix);
-	}	
+	}
 
 	for (i = 0; i < game->height; i++)
 	{
@@ -124,7 +124,7 @@ int Mine_process(Mine game, int generate)
 {
 	int i, j, k, weight;
 	MineNode node, node_s;
-	
+
 	if (game->init)
 	{
 		return CODE_ERROR;
@@ -144,7 +144,7 @@ int Mine_process(Mine game, int generate)
 
 	for (i = 0; i < game->height; i++)
 	{
-		for (j = 0; j < game->width; j++) 
+		for (j = 0; j < game->width; j++)
 		{
 
 			Matrix_get(game->matrix, j, i, (void **) &node);
@@ -152,19 +152,19 @@ int Mine_process(Mine game, int generate)
 			if (node == NULL && (node = Mine_generate_node()) == NULL)
 			{
 				printf("Error on malloc Mine node\n");
-				return;
-			}			
+				return CODE_ERROR;
+			}
 
 			weight = 0;
 			if (!node->bomb)
 			{
 				for (k = j - 1; k <= j + 1; k++)
 				{
-					if (Matrix_get(game->matrix, k, i - 1, (void **)&node_s) == CODE_OK && node_s != NULL && node_s->bomb) 
+					if (Matrix_get(game->matrix, k, i - 1, (void **)&node_s) == CODE_OK && node_s != NULL && node_s->bomb)
 					{
 						weight++;
 					}
-					
+
 					if (Matrix_get(game->matrix, k, i + 1, (void **)&node_s) == CODE_OK && node_s != NULL && node_s->bomb)
 					{
 						weight++;
@@ -184,7 +184,7 @@ int Mine_process(Mine game, int generate)
 			else
 			{
 				weight = 9;
-			}			
+			}
 
 			node->x = j;
 			node->y = i;
@@ -196,6 +196,7 @@ int Mine_process(Mine game, int generate)
 	}
 
 	game->init = 1;
+	return CODE_OK;
 }
 
 int Mine_get_width(Mine game)
@@ -203,7 +204,7 @@ int Mine_get_width(Mine game)
 	return game->width;
 }
 
-int Mine_get_height(Mine game) 
+int Mine_get_height(Mine game)
 {
 	return game->height;
 }
@@ -213,7 +214,7 @@ int Mine_get_bomb_count(Mine game)
 	return game->bombs;
 }
 
-int Mine_get(Mine game, int x, int y, MineNode *data) 
+int Mine_get(Mine game, int x, int y, MineNode *data)
 {
 	if (!game->init)
 	{
@@ -248,20 +249,20 @@ int Mine_pick(Mine game, int x, int y, int marker)
 			node->shown = MARK_FLAG;
 			game->flags += 1;
 		}
-		else 
+		else
 		{
 			return CODE_INVALID;
 		}
 	}
 	else if (marker == MARK_SHOW && node->shown == MARK_HIDDEN)
-	{	
+	{
 		Mine_snapshot(game);
 		Mine_flood_fill(game, node);
 
 		if (node->bomb)
 		{
 			return CODE_LOSE;
-		}		
+		}
 	}
 
 	if (game->shown == (game->width * game->height) - game->bombs)
@@ -309,30 +310,30 @@ int Mine_snapshot(Mine game)
 	MineNode node;
 	Matrix matrix;
 
-	if (!game->init) 
+	if (!game->init)
 	{
 		return CODE_ERROR;
 	}
 
-	if ((matrix = Matrix_init(game->width, game->height)) == NULL) 
+	if ((matrix = Matrix_init(game->width, game->height)) == NULL)
 	{
 		return CODE_ERROR;
 	}
 
 	for (i = 0; i < game->height; i++)
 	{
-		for (j = 0; j < game->width; j++) 
+		for (j = 0; j < game->width; j++)
 		{
-			
+
 			if (Matrix_get(game->matrix, j, i, (void **)&node) == CODE_OK &&
-				(k = (int *)malloc(sizeof(int))) != NULL) 
+				(k = (int *)malloc(sizeof(int))) != NULL)
 			{
 				*k = node->shown;
 				Matrix_set(matrix, j, i, k);
 			}
 		}
 	}
-	
+
 	return STACK_push(game->snapshot_stack, matrix);;
 }
 
@@ -342,7 +343,7 @@ int Mine_rollback(Mine game)
 	MineNode node;
 	Matrix matrix;
 
-	if (!game->init) 
+	if (!game->init)
 	{
 		return CODE_ERROR;
 	}
@@ -351,14 +352,14 @@ int Mine_rollback(Mine game)
 	{
 		return CODE_INVALID;
 	}
-	
+
 	if (STACK_pop(game->snapshot_stack, (void **)&matrix) == CODE_OK)
 	{
 		shown = 0;
 		for (i = 0; i < game->height; i++)
 		{
 			for (j = 0; j < game->width; j++)
-			{				
+			{
 				if (Matrix_get(game->matrix, j, i, (void **)&node) == CODE_OK &&
 					Matrix_get(matrix, j, i, (void **)&k) == CODE_OK)
 				{
@@ -459,7 +460,7 @@ MineNode Mine_generate_node()
 {
 	MineNode node;
 
-	if ((node = (MineNode)malloc(sizeof(struct MineCell_t))) == NULL) 
+	if ((node = (MineNode)malloc(sizeof(struct MineCell_t))) == NULL)
 	{
 		return NULL;
 	}
@@ -474,7 +475,7 @@ MineNode Mine_generate_node()
 	return node;
 }
 
-int Mine_is_node_bomb(MineNode node) 
+int Mine_is_node_bomb(MineNode node)
 {
 	return node->bomb;
 }

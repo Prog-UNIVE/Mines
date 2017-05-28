@@ -45,7 +45,7 @@ struct MineStruct_t
 	int                 init;
 	Matrix				matrix;
 	Queue				fill_queue;
-	Stack				snapshot_stack_matrix;
+	Stack				snapshot_stack;
 };
 
 int Mine_flood_fill(Mine game, MineNode node);
@@ -67,9 +67,9 @@ Mine Mine_init(int width, int height)
 	game->init = 0;
 	game->matrix = Matrix_init(width, height);
 	game->fill_queue = QUEUE_init();
-	game->snapshot_stack_matrix = STACK_init();
+	game->snapshot_stack = STACK_init();
 
-	if (game->matrix == NULL || game->fill_queue == NULL || game->snapshot_stack_matrix == NULL)
+	if (game->matrix == NULL || game->fill_queue == NULL || game->snapshot_stack == NULL)
 		return NULL;
 
 	return game;
@@ -82,12 +82,12 @@ void Mine_destroy(Mine game)
 	Matrix_destroy(game->matrix);
 	QUEUE_destroy(game->fill_queue);
 
-	while (STACK_size(game->snapshot_stack_matrix) > 0)
+	while (STACK_size(game->snapshot_stack) > 0)
 	{
-		STACK_pop(game->snapshot_stack_matrix, (void **)&matrix);
+		STACK_pop(game->snapshot_stack, (void **)&matrix);
 		Matrix_destroy(matrix);
 	}
-	STACK_destroy(game->snapshot_stack_matrix);
+	STACK_destroy(game->snapshot_stack);
 
 	free(game);
 }
@@ -104,9 +104,9 @@ void Mine_clear(Mine game)
 	QUEUE_destroy(game->fill_queue);
 	game->fill_queue = QUEUE_init();
 
-	while (STACK_size(game->snapshot_stack_matrix) > 0)
+	while (STACK_size(game->snapshot_stack) > 0)
 	{
-		STACK_pop(game->snapshot_stack_matrix, (void **)&matrix);
+		STACK_pop(game->snapshot_stack, (void **)&matrix);
 		Matrix_destroy(matrix);
 	}	
 
@@ -333,7 +333,7 @@ int Mine_snapshot(Mine game)
 		}
 	}
 	
-	return STACK_push(game->snapshot_stack_matrix, matrix);;
+	return STACK_push(game->snapshot_stack, matrix);;
 }
 
 int Mine_rollback(Mine game)
@@ -347,12 +347,12 @@ int Mine_rollback(Mine game)
 		return CODE_ERROR;
 	}
 
-	if (STACK_is_empty(game->snapshot_stack_matrix))
+	if (STACK_is_empty(game->snapshot_stack))
 	{
 		return CODE_INVALID;
 	}
 	
-	if (STACK_pop(game->snapshot_stack_matrix, (void **)&matrix) == CODE_OK)
+	if (STACK_pop(game->snapshot_stack, (void **)&matrix) == CODE_OK)
 	{
 		shown = 0;
 		for (i = 0; i < game->height; i++)
